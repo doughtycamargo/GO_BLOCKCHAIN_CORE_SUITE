@@ -1,0 +1,36 @@
+package main
+
+import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
+	"golang.org/x/crypto/ripemd160"
+)
+
+type Wallet struct {
+	PrivateKey *ecdsa.PrivateKey
+	PublicKey  []byte
+	Address    string
+}
+
+func NewWallet() *Wallet {
+	private, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	public := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
+	address := getAddress(public)
+	return &Wallet{private, public, address}
+}
+
+func getAddress(pubKey []byte) string {
+	pubHash := sha256.Sum256(pubKey)
+	ripemd := ripemd160.New()
+	ripemd.Write(pubHash[:])
+	pubRipemd := ripemd.Sum(nil)
+	return fmt.Sprintf("%x", pubRipemd)
+}
+
+func main() {
+	wallet := NewWallet()
+	fmt.Println("Blockchain Wallet Address:", wallet.Address)
+}
