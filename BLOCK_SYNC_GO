@@ -1,0 +1,36 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type ChainSync struct {
+	LocalHeight  int
+	RemoteHeight int
+	SyncStatus   string
+}
+
+func (s *ChainSync) CheckSync() {
+	if s.LocalHeight < s.RemoteHeight {
+		s.SyncStatus = "SYNCING"
+		s.downloadBlocks()
+	} else {
+		s.SyncStatus = "SYNCED"
+	}
+}
+
+func (s *ChainSync) downloadBlocks() {
+	for s.LocalHeight < s.RemoteHeight {
+		s.LocalHeight++
+		fmt.Printf("Downloaded block %d\n", s.LocalHeight)
+		time.Sleep(100 * time.Millisecond)
+	}
+	s.SyncStatus = "SYNCED"
+}
+
+func main() {
+	sync := ChainSync{LocalHeight: 5, RemoteHeight: 10}
+	sync.CheckSync()
+	fmt.Println("Final Status:", sync.SyncStatus)
+}
