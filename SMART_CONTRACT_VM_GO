@@ -1,0 +1,38 @@
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+type Contract struct {
+	Address string
+	Storage map[string]string
+	Owner   string
+}
+
+func NewContract(owner, addr string) *Contract {
+	return &Contract{
+		Address: addr,
+		Storage: make(map[string]string),
+		Owner:   owner,
+	}
+}
+
+func (c *Contract) Set(key, value, caller string) error {
+	if caller != c.Owner {
+		return errors.New("permission denied")
+	}
+	c.Storage[key] = value
+	return nil
+}
+
+func (c *Contract) Get(key string) string {
+	return c.Storage[key]
+}
+
+func main() {
+	contract := NewContract("0xOWNER", "0xCONTRACT")
+	contract.Set("token", "1000", "0xOWNER")
+	fmt.Println("Contract Storage:", contract.Get("token"))
+}
