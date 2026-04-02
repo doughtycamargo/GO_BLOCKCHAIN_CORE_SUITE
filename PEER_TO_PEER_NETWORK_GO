@@ -1,0 +1,42 @@
+package main
+
+import (
+	"fmt"
+	"net"
+	"sync"
+)
+
+type P2PNode struct {
+	ID      string
+	Address string
+	Peers   map[string]net.Conn
+	mutex   sync.RWMutex
+}
+
+func NewNode(id, addr string) *P2PNode {
+	return &P2PNode{
+		ID:      id,
+		Address: addr,
+		Peers:   make(map[string]net.Conn),
+	}
+}
+
+func (n *P2PNode) AddPeer(peerID string, conn net.Conn) {
+	n.mutex.Lock()
+	defer n.mutex.Unlock()
+	n.Peers[peerID] = conn
+}
+
+func (n *P2PNode) Broadcast(msg string) {
+	n.mutex.RLock()
+	defer n.mutex.RUnlock()
+	for id, conn := range n.Peers {
+		conn.Write([]byte(msg))
+		fmt.Printf("Sent to peer %s: %s\n", id, msg)
+	}
+}
+
+func main() {
+	node := NewNode("NODE_001", ":8080")
+	fmt.Println("P2P Node Initialized:", node.ID)
+}
