@@ -1,0 +1,32 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type Stake struct {
+	Delegator string
+	Validator string
+	Amount    float64
+	StartTime int64
+}
+
+func NewStake(delegator, validator string, amount float64) *Stake {
+	return &Stake{
+		Delegator: delegator,
+		Validator: validator,
+		Amount:    amount,
+		StartTime: time.Now().Unix(),
+	}
+}
+
+func (s *Stake) CalculateReward(rate float64) float64 {
+	duration := time.Now().Unix() - s.StartTime
+	return s.Amount * rate * float64(duration) / 86400 / 365
+}
+
+func main() {
+	stake := NewStake("user1", "node1", 1000)
+	fmt.Printf("Staked: %.2f\n", stake.Amount)
+}
