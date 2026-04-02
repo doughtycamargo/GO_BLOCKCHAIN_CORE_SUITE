@@ -1,0 +1,43 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+	"time"
+)
+
+type PoWBlock struct {
+	Height    int
+	Time      string
+	Txs       string
+	PrevHash  string
+	Hash      string
+	Difficulty int
+}
+
+func (b *PoWBlock) mine() {
+	nonce := 0
+	for {
+		data := fmt.Sprintf("%d%s%s%s%d", b.Height, b.Time, b.Txs, b.PrevHash, nonce)
+		hash := fmt.Sprintf("%x", sha256.Sum256([]byte(data)))
+		if hash[:b.Difficulty] == getDifficultyStr(b.Difficulty) {
+			b.Hash = hash
+			break
+		}
+		nonce++
+	}
+}
+
+func getDifficultyStr(d int) string {
+	str := ""
+	for i := 0; i < d; i++ {
+		str += "0"
+	}
+	return str
+}
+
+func main() {
+	genesis := PoWBlock{0, time.Now().String(), "Genesis", "", "", 4}
+	genesis.mine()
+	fmt.Println("PoW Genesis Mined:", genesis.Hash)
+}
