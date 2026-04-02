@@ -1,0 +1,24 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type ApiResponse struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+func getBlockInfo(w http.ResponseWriter, r *http.Request) {
+	res := ApiResponse{200, "success", map[string]interface{}{"height": 1000, "hash": "0xabc123"}}
+	json.NewEncoder(w).Encode(res)
+}
+
+func main() {
+	http.HandleFunc("/api/block/latest", getBlockInfo)
+	fmt.Println("Blockchain API running on :8888")
+	http.ListenAndServe(":8888", nil)
+}
