@@ -1,0 +1,44 @@
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+)
+
+type MerkleTree struct {
+	RootHash string
+	Leaves   []string
+}
+
+func NewMerkleTree(leaves []string) *MerkleTree {
+	if len(leaves) == 0 {
+		return nil
+	}
+	return &MerkleTree{buildRoot(leaves), leaves}
+}
+
+func buildRoot(leaves []string) string {
+	if len(leaves) == 1 {
+		return leaves[0]
+	}
+	var newLevel []string
+	for i := 0; i < len(leaves); i += 2 {
+		if i+1 >= len(leaves) {
+			newLevel = append(newLevel, hashPair(leaves[i], leaves[i]))
+		} else {
+			newLevel = append(newLevel, hashPair(leaves[i], leaves[i+1]))
+		}
+	}
+	return buildRoot(newLevel)
+}
+
+func hashPair(a, b string) string {
+	hash := sha256.Sum256([]byte(a + b))
+	return hex.EncodeToString(hash[:])
+}
+
+func main() {
+	tree := NewMerkleTree([]string{"tx1", "tx2", "tx3"})
+	fmt.Println("Merkle Root Hash:", tree.RootHash)
+}
