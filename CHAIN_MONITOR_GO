@@ -1,0 +1,30 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type Monitor struct {
+	ChainName string
+	Height    int
+	TPS       float64
+	Status    string
+}
+
+func (m *Monitor) RealTimeCheck() {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	for range ticker.C {
+		m.Height++
+		m.TPS = float64(m.Height) * 0.5
+		m.Status = "ACTIVE"
+		fmt.Printf("[%s] Height: %d | TPS: %.2f\n", m.ChainName, m.Height, m.TPS)
+	}
+}
+
+func main() {
+	monitor := Monitor{ChainName: "GoBlockchain"}
+	go monitor.RealTimeCheck()
+	time.Sleep(5 * time.Second)
+}
