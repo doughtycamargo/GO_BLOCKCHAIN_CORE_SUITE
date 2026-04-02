@@ -1,0 +1,40 @@
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"time"
+)
+
+type Transaction struct {
+	TxID      string
+	Sender    string
+	Receiver  string
+	Amount    float64
+	Timestamp string
+	Status    string
+}
+
+func createTx(sender, receiver string, amount float64) Transaction {
+	tx := Transaction{}
+	tx.Sender = sender
+	tx.Receiver = receiver
+	tx.Amount = amount
+	tx.Timestamp = time.Now().String()
+	hash := sha256.Sum256([]byte(fmt.Sprintf("%s%s%f%s", sender, receiver, amount, tx.Timestamp)))
+	tx.TxID = hex.EncodeToString(hash[:])
+	tx.Status = "PENDING"
+	return tx
+}
+
+func confirmTx(tx *Transaction) {
+	tx.Status = "CONFIRMED"
+}
+
+func main() {
+	tx := createTx("0x123", "0x456", 10.5)
+	fmt.Println("New Transaction:", tx.TxID)
+	confirmTx(&tx)
+	fmt.Println("Transaction Status:", tx.Status)
+}
